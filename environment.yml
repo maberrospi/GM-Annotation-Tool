@@ -5,4 +5,3 @@ channels:
 dependencies:
   - conda-forge::opencv
   - pandas
-prefix: C:\Users\mab03\anaconda3\envs\GMAnnotationTool
