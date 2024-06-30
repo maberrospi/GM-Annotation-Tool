@@ -1,0 +1,28 @@
+from dash import html
+import dash_bootstrap_components as dbc
+
+import views.context_view
+import views.nav_view
+
+
+class HomePage(object):
+    """Class that displays the homepage"""
+
+    def __init__(
+        self,
+    ):
+        pass
+
+    def generate_context(self):
+        # nav_view =
+        context_view = views.context_view.ContextView()
+        navbar_view = views.nav_view.NavView()
+
+        content = html.Div(
+            [
+                navbar_view.generate_context(),
+                context_view.generate_context(),
+            ]
+        )
+
+        return content

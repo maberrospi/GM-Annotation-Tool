@@ -1,0 +1,8 @@
+name: GMAnnotationTool
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - conda-forge::opencv
+  - pandas
+prefix: C:\Users\mab03\anaconda3\envs\GMAnnotationTool
