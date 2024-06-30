@@ -8,5 +8,5 @@ $ conda activate GMAnnotationTool
 $ pip install numpy dash dash_bootstrap_components
 
 # Clone repository
-git clone 
+git clone https://github.com/maberrospi/GM-Annotation-Tool.git
 ``` 
