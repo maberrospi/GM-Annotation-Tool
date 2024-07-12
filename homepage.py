@@ -26,3 +26,7 @@ class HomePage(object):
         )
 
         return content
+
+
+if __name__ == "__main__":
+    raise RuntimeError("[ERROR] This module cannot be run like a script.")
