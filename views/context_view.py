@@ -3,7 +3,8 @@ import dash
 import dash_bootstrap_components as dbc
 from dash import html
 import plotly.graph_objects as go
-import plotly.express as pex
+import plotly.express as px
+import numpy as np
 import cv2
 import os
 
@@ -33,6 +34,55 @@ class ContextView(object):
         )
         return instructions_toast
 
+    def _create_empty_bg_figure(self):
+        GS = 100
+
+        fig = px.scatter(
+            x=np.repeat(np.linspace(0, 1, GS), GS),
+            y=np.tile(np.linspace(0, 1, GS), GS),
+        ).update_traces(marker_color="rgba(0,0,0,0)")
+
+        fig.update_xaxes(fixedrange=True, zeroline=True, showgrid=False)
+        fig.update_yaxes(fixedrange=True, zeroline=True, showgrid=False)
+        fig.update_layout(
+            margin={"l": 0, "r": 0, "t": 70, "b": 0},
+            paper_bgcolor="rgba(0,0,0,0)",  # Transparent background
+            plot_bgcolor="rgba(0,0,0,0)",  # Transparent plot area
+            yaxis_title=None,
+            xaxis_title=None,
+        )
+
+        return fig
+
+        # return {
+        #     "data": [
+        #         px.scatter(
+        #             x=np.repeat(np.linspace(0, 1, GS), GS),
+        #             y=np.tile(np.linspace(0, 1, GS), GS),
+        #         )  # .update_traces(marker_color="rgba(0,0,0,0)")
+        #     ],
+        #     "layout": {
+        #         "xaxis": {
+        #             # "range": [0, 2],
+        #             # "showgrid": False,
+        #             "zeroline": False,
+        #             # "visible": False,
+        #             "fixedrange": True,  # Disables zoom in
+        #         },
+        #         "yaxis": {
+        #             # "range": [0, 1],
+        #             # "showgrid": False,
+        #             "zeroline": False,
+        #             # "visible": False,
+        #             "fixedrange": True,  # Disables zoom in
+        #         },
+        #         "margin": {"l": 0, "r": 0, "t": 70, "b": 0},
+        #         "paper_bgcolor": "rgba(0,0,0,0)",  # Transparent background
+        #         "plot_bgcolor": "rgba(0,0,0,0)",  # Transparent plot area
+        #         "shapes": [],
+        #     },
+        # }
+
     def _generate_display(self):
         # At some point get a path to an image we want to annotate
         self.path = None
@@ -43,10 +93,27 @@ class ContextView(object):
             # No images chosen
             display_content = dbc.Row(
                 [
-                    html.P(
-                        "No images in the input folder.",
-                        style={"padding": "15px", "margin-bottom": "0px"},
-                    ),
+                    # html.P(
+                    #     "No images in the input folder.",
+                    #     style={"padding": "15px", "margin-bottom": "0px"},
+                    # ),
+                    # Add two Store components for line visualization
+                    # dcc.Store(id="points-store-1", data=[]),
+                    # dcc.Store(id="points-store-2", data=[]),
+                    # dcc.Graph(
+                    #     id="line-graph",
+                    #     figure=self._create_empty_bg_figure(),
+                    #     config={"displayModeBar": False},  # , "staticPlot": True},
+                    #     style={
+                    #         "position": "absolute",
+                    #         "width": "100%",
+                    #         "height": "100%",
+                    #         "z-index": 1,
+                    #         "pointer-events": "all",
+                    #         "opacity": 0,
+                    #     },
+                    # ),
+                    dcc.Store(id="store-last-annot", data=""),
                     dbc.Col(
                         [
                             dcc.Upload(
@@ -74,7 +141,11 @@ class ContextView(object):
                             ),
                             html.Div(
                                 id="output-image-upload",
-                                style={"maxWidth": "100%", "margin": "10px"},
+                                style={
+                                    "maxWidth": "100%",
+                                    "margin": "10px",
+                                    "zIndex": 2,
+                                },
                             ),
                         ],
                         style={"width": "50%"},
@@ -106,15 +177,31 @@ class ContextView(object):
                             ),
                             html.Div(
                                 id="output-image-upload-two",
-                                style={"maxWidth": "100%", "margin": "10px"},
+                                style={
+                                    "maxWidth": "100%",
+                                    "margin": "10px",
+                                    "zIndex": 2,
+                                },
                             ),
                         ],
                         style={"width": "50%"},
                     ),
+                    # html.Div(  # SVG container
+                    #     id="svg-container",
+                    #     style={
+                    #         "position": "absolute",
+                    #         "top": 0,
+                    #         "left": 0,
+                    #         "width": "100%",
+                    #         "height": "100%",
+                    #         "pointerEvents": "none",
+                    #         "zIndex": 3,
+                    #     },
+                    # ),
                 ],
                 style={"width": "100%"},
             )
-            header = "Yay no files"
+            header = "Choose two images and match corresponding points."
 
         display_content_toast = dbc.Toast(
             [
@@ -127,7 +214,7 @@ class ContextView(object):
                 )
             ],
             header=header,
-            style={"width": "100%", "maxWidth": "100%", "margin-left": "10px"},
+            style={"width": "100%", "margin-left": "10px"},
             body_style={"padding": "0px 0px 0px 0px", "margin": "0px 0px 0px 0px"},
         )
 
@@ -145,7 +232,7 @@ class ContextView(object):
                 ),
             ],
             header="Matched Points",
-            style={"width": "400px", "maxWidth": "400px", "minWidth": "400px"},
+            style={"maxWidth": "400px"},
             body_style={"padding": "0px 0px 0px 0px", "margin": "0px 0px 0px 0px"},
         )
         return matches_content_toast
@@ -163,12 +250,12 @@ class ContextView(object):
                         dbc.Col(
                             display_content_toast,
                             style={"padding-right": "0px", "maxWidth": "100%"},
-                            width=7,
+                            width=9,
                         ),
                         dbc.Col(
                             matches_content_toast,
-                            style={"padding-right": "0px"},
-                            width="auto",
+                            style={"padding-right": "0px", "margin-right": "0px"},
+                            width=3,
                         ),
                     ],
                     class_name="mb-3",
