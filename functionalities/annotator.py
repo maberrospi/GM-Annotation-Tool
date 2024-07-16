@@ -1,9 +1,3 @@
-import json
-import os
-
-# from GMAnnotationTool import CWD_PATH
-
-
 class Singleton(type):
     _instances = {}
 
@@ -15,6 +9,7 @@ class Singleton(type):
 
 class MatchAnnotator(object):  # metaclass=Singleton
     def __init__(self, name, output_dir="Output") -> None:
+        # Was initialy a singleton class but changed it to fit my needs
         assert output_dir is not None, "Output directory was not given."
         # assert obj_id is not None, "Object ID was not given"
 

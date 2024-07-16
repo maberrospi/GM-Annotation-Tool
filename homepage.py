@@ -1,5 +1,4 @@
 from dash import html
-import dash_bootstrap_components as dbc
 
 import views.context_view
 import views.nav_view
