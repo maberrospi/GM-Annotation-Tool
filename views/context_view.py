@@ -16,13 +16,22 @@ class ContextView(object):
     def _generate_instructions(self):
         instructions_toast = dbc.Toast(
             [
-                html.P(
-                    "Match points in the images. Always select the first point from the left image.",
-                    className="mb-0",
-                ),
-                html.P(
-                    "Each match will be annotated with a number corresponding to the clicking order.",
-                    className="mb-0",
+                dbc.ListGroup(
+                    [
+                        dbc.ListGroupItem(
+                            "Match points in the images. Always select the first point from the left image."
+                        ),
+                        dbc.ListGroupItem(
+                            "Each match will be annotated with a number corresponding to the clicking order."
+                        ),
+                        dbc.ListGroupItem(
+                            'The matches are saved as JSON files in the following format: {"matches": [{"x1": px, "y1": px, "x2": px, "y2": px}]}'
+                        ),
+                        dbc.ListGroupItem(
+                            'If no matches are chosen, the annotation will contain {"matches": null}'
+                        ),
+                    ],
+                    numbered=True,
                 ),
             ],
             id="instruction_toast",
