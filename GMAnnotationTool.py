@@ -50,21 +50,41 @@ def display_instructions(n_clicks):
     dash.dependencies.Output("save-button", "disabled"),
     dash.dependencies.Output("undo-button", "disabled"),
     dash.dependencies.Output("clear-button", "disabled"),
-    dash.dependencies.Input("matched_points", "children"),
-    prevent_initial_call=True,
+    dash.dependencies.Input("output-image-upload", "children"),
+    dash.dependencies.Input("output-image-upload-two", "children"),
 )
-def enable_disable_buttons(matched_points_list):
-    # Enable the save,undo and clear selection buttons
-    return (
-        (True, True, True)
-        if matched_points_list is None or len(matched_points_list) == 0
-        else (False, False, False)
-    )
+def enable_disable_buttons(div_children_one, div_children_two):
+    # Enable buttons only if both images have been loaded.
+    if (
+        div_children_one
+        and "children" in div_children_one[0]["props"]
+        and any("type" in ch for ch in div_children_one[0]["props"]["children"])
+        and any(
+            [
+                True if ch["type"] == "Graph" else False
+                for ch in div_children_one[0]["props"]["children"][:]
+            ]
+        )
+    ) and (
+        div_children_two
+        and "children" in div_children_two[0]["props"]
+        and any("type" in ch for ch in div_children_two[0]["props"]["children"])
+        and any(
+            [
+                True if ch["type"] == "Graph" else False
+                for ch in div_children_two[0]["props"]["children"][:]
+            ]
+        )
+    ):
+        return (False, False, False)
+    else:
+        return (True, True, True)
 
 
 def parse_contents(contents, filename, date, f_name):
 
     max_display_width = 512
+    min_display_width = 250
 
     # Remove 'data:image/png;base64' from the image string,
     # see https://stackoverflow.com/a/26079673/11989081
@@ -83,13 +103,20 @@ def parse_contents(contents, filename, date, f_name):
     # Resize image to the standard width
     resized = None
     scale_factor = 1.0
-    if img.shape[1] > max_display_width:
+    if img.shape[1] > max_display_width or img.shape[1] <= min_display_width:
         scale_factor = max_display_width / img.shape[1]
         width = int(round(img.shape[1] * scale_factor))
         height = int(round(img.shape[0] * scale_factor))
         resized = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
     else:
         resized = img
+
+    # Enlarge the image if its too small
+    # if img.shape[1] <= min_display_width:
+    #     scale_factor = max_display_width / img.shape[1]
+    #     width = int(round(img.shape[1] * scale_factor))
+    #     height = int(round(img.shape[0] * scale_factor))
+    #     resized = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
 
     # Tell the annotator the info about the image we are currently annotating
     # functionalities.annotator.MatchAnnotator().new_image(filename, scale_factor)
@@ -108,7 +135,13 @@ def parse_contents(contents, filename, date, f_name):
 
     # Convert the image string to numpy array and create a
     # Plotly figure, see https://plotly.com/python/imshow/
-    fig = px.imshow(img)
+    if len(img.shape) == 3:
+        fig = px.imshow(img)
+    elif len(img.shape) == 2:
+        fig = px.imshow(img, binary_string=True)  # Grayscale
+    else:
+        return html.Div(["There was an error processing this file."])
+        # raise Exception("The created graph does not contain any nodes.")
 
     # Configure axes
     fig.update_xaxes(
@@ -225,6 +258,8 @@ def click_event_handler(
             showlegend=False,
             mode="markers",
             name="Match " + str(idx + 1),
+            marker=dict(size=12),
+            marker_line=dict(width=2, color="DarkSlateGrey"),
         )
     )
 
@@ -425,16 +460,21 @@ def save_event_handler(save_n_clicks, close_n_clicks, modal_is_open):
         l_annot_n_clicks = len(left_annotator.clicks)
         r_annot_n_clicks = len(right_annotator.clicks)
         if l_annot_n_clicks != r_annot_n_clicks:
-            print(not modal_is_open)
+            # print(not modal_is_open)
             return not modal_is_open, dash.no_update, 0, dash.no_update
 
         im1_path = left_annotator.img_path.split(".")[0]
         im2_path = right_annotator.img_path.split(".")[0]
-        json_fname = im1_path + im2_path + ".json"
+        json_fname = im1_path + "-" + im2_path + ".json"
         output_dir = left_annotator.output_dir  # Left dir == right dir
         dst_path = os.path.join(CWD_PATH, output_dir, json_fname)
         Path(dst_path).parent.mkdir(parents=True, exist_ok=True)
-        json_dict = create_JSON_annotation()
+
+        if l_annot_n_clicks == 0 and r_annot_n_clicks == 0:
+            json_dict = {"matches": None}
+        else:
+            json_dict = create_JSON_annotation()
+
         with open(dst_path, "w") as json_file:
             json.dump(json_dict, json_file)
 
