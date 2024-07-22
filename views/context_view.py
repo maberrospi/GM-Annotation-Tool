@@ -100,124 +100,165 @@ class ContextView(object):
             display_content = html.Div(id="rand")
         else:
             # No images chosen
-            display_content = dbc.Row(
-                [
-                    # html.P(
-                    #     "No images in the input folder.",
-                    #     style={"padding": "15px", "margin-bottom": "0px"},
-                    # ),
-                    # Add two Store components for line visualization
-                    # dcc.Store(id="points-store-1", data=[]),
-                    # dcc.Store(id="points-store-2", data=[]),
-                    # dcc.Graph(
-                    #     id="line-graph",
-                    #     figure=self._create_empty_bg_figure(),
-                    #     config={"displayModeBar": False},  # , "staticPlot": True},
-                    #     style={
-                    #         "position": "absolute",
-                    #         "width": "100%",
-                    #         "height": "100%",
-                    #         "z-index": 1,
-                    #         "pointer-events": "all",
-                    #         "opacity": 0,
-                    #     },
-                    # ),
-                    dcc.Store(id="store-last-annot", data=""),
-                    dbc.Col(
-                        [
-                            dcc.Upload(
-                                id="upload-image",
-                                children=html.Div(
-                                    [
-                                        "Drag and Drop or ",
-                                        html.A(
-                                            "Select File",
-                                            style={"font-weight": "bold"},
-                                        ),
-                                    ]
+            display_content = [
+                dbc.Row(
+                    [
+                        # html.P(
+                        #     "No images in the input folder.",
+                        #     style={"padding": "15px", "margin-bottom": "0px"},
+                        # ),
+                        # Add two Store components for line visualization
+                        # dcc.Store(id="points-store-1", data=[]),
+                        # dcc.Store(id="points-store-2", data=[]),
+                        # dcc.Graph(
+                        #     id="line-graph",
+                        #     figure=self._create_empty_bg_figure(),
+                        #     config={"displayModeBar": False},  # , "staticPlot": True},
+                        #     style={
+                        #         "position": "absolute",
+                        #         "width": "100%",
+                        #         "height": "100%",
+                        #         "z-index": 1,
+                        #         "pointer-events": "all",
+                        #         "opacity": 0,
+                        #     },
+                        # ),
+                        dcc.Store(id="store-last-annot", data=""),
+                        dbc.Col(
+                            [
+                                dcc.Upload(
+                                    id="upload-image",
+                                    children=html.Div(
+                                        [
+                                            "Drag and Drop or ",
+                                            html.A(
+                                                "Select File",
+                                                style={"font-weight": "bold"},
+                                            ),
+                                        ]
+                                    ),
+                                    style={
+                                        "width": "100%",
+                                        "height": "60px",
+                                        "lineHeight": "60px",
+                                        "borderWidth": "1px",
+                                        "borderStyle": "dashed",
+                                        "borderRadius": "5px",
+                                        "textAlign": "center",
+                                        "margin": "10px",
+                                    },
+                                    multiple=True,
                                 ),
-                                style={
-                                    "width": "100%",
-                                    "height": "60px",
-                                    "lineHeight": "60px",
-                                    "borderWidth": "1px",
-                                    "borderStyle": "dashed",
-                                    "borderRadius": "5px",
-                                    "textAlign": "center",
-                                    "margin": "10px",
-                                },
-                                multiple=True,
-                            ),
-                            html.Div(
-                                id="output-image-upload",
-                                style={
-                                    "maxWidth": "100%",
-                                    "margin": "10px",
-                                    "zIndex": 2,
-                                },
-                            ),
-                        ],
-                        style={"width": "50%"},
-                    ),
-                    dbc.Col(
-                        [
-                            dcc.Upload(
-                                id="upload-image-two",
-                                children=html.Div(
-                                    [
-                                        "Drag and Drop or ",
-                                        html.A(
-                                            "Select File",
-                                            style={"font-weight": "bold"},
-                                        ),
-                                    ]
+                                html.Div(
+                                    id="output-image-upload",
+                                    style={
+                                        "maxWidth": "100%",
+                                        "margin": "10px",
+                                        "zIndex": 2,
+                                    },
                                 ),
-                                style={
-                                    "width": "100%",
-                                    "height": "60px",
-                                    "lineHeight": "60px",
-                                    "borderWidth": "1px",
-                                    "borderStyle": "dashed",
-                                    "borderRadius": "5px",
-                                    "textAlign": "center",
-                                    "margin": "10px",
-                                },
-                                multiple=True,
+                            ],
+                            style={"width": "50%"},
+                        ),
+                        dbc.Col(
+                            [
+                                dcc.Upload(
+                                    id="upload-image-two",
+                                    children=html.Div(
+                                        [
+                                            "Drag and Drop or ",
+                                            html.A(
+                                                "Select File",
+                                                style={"font-weight": "bold"},
+                                            ),
+                                        ]
+                                    ),
+                                    style={
+                                        "width": "100%",
+                                        "height": "60px",
+                                        "lineHeight": "60px",
+                                        "borderWidth": "1px",
+                                        "borderStyle": "dashed",
+                                        "borderRadius": "5px",
+                                        "textAlign": "center",
+                                        "margin": "10px",
+                                    },
+                                    multiple=True,
+                                ),
+                                html.Div(
+                                    id="output-image-upload-two",
+                                    style={
+                                        "maxWidth": "100%",
+                                        "margin": "10px",
+                                        "zIndex": 2,
+                                    },
+                                ),
+                            ],
+                            style={"width": "50%"},
+                        ),
+                        # html.Div(  # SVG container
+                        #     id="svg-container",
+                        #     style={
+                        #         "position": "absolute",
+                        #         "top": 0,
+                        #         "left": 0,
+                        #         "width": "100%",
+                        #         "height": "100%",
+                        #         "pointerEvents": "none",
+                        #         "zIndex": 3,
+                        #     },
+                        # ),
+                    ],
+                    style={"width": "100%"},
+                ),
+                dbc.Row(
+                    [
+                        dcc.Upload(
+                            id="upload-json",
+                            children=html.Div(
+                                [
+                                    html.Button(
+                                        "Upload existing Annotations",
+                                        style={
+                                            "width": "auto",
+                                            "height": "30px",
+                                            "lineHeight": "30px",
+                                            "borderWidth": "1px",
+                                            "borderRadius": "5px",
+                                            "textAlign": "center",
+                                            "margin": "10px",
+                                            "backgroundColor": "#222529",
+                                            "color": "white",
+                                        },
+                                    )
+                                ],
+                                style={"textAlign": "center"},
                             ),
-                            html.Div(
-                                id="output-image-upload-two",
-                                style={
-                                    "maxWidth": "100%",
-                                    "margin": "10px",
-                                    "zIndex": 2,
-                                },
-                            ),
-                        ],
-                        style={"width": "50%"},
-                    ),
-                    # html.Div(  # SVG container
-                    #     id="svg-container",
-                    #     style={
-                    #         "position": "absolute",
-                    #         "top": 0,
-                    #         "left": 0,
-                    #         "width": "100%",
-                    #         "height": "100%",
-                    #         "pointerEvents": "none",
-                    #         "zIndex": 3,
-                    #     },
-                    # ),
-                ],
-                style={"width": "100%"},
-            )
+                            multiple=False,
+                            disabled=True,
+                        ),
+                        dbc.Alert(
+                            "The file chosen must be of type 'JSON'. The data must have correct format.",
+                            id="json-error",
+                            is_open=False,
+                            duration=5000,
+                            color="danger",
+                            style={
+                                "position": "fixed",
+                                "bottom": 0,
+                                "left": 10,
+                                "width": "auto",
+                            },
+                        ),
+                    ]
+                ),
+            ]
             header = "Choose two images and match corresponding points."
 
         display_content_toast = dbc.Toast(
             [
                 html.Div(
-                    [
-                        display_content,
-                    ],
+                    display_content,
                     id="display-div",
                     style={"width": "100%"},
                 )

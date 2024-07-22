@@ -50,6 +50,7 @@ def display_instructions(n_clicks):
     dash.dependencies.Output("save-button", "disabled"),
     dash.dependencies.Output("undo-button", "disabled"),
     dash.dependencies.Output("clear-button", "disabled"),
+    dash.dependencies.Output("upload-json", "disabled"),
     dash.dependencies.Input("output-image-upload", "children"),
     dash.dependencies.Input("output-image-upload-two", "children"),
 )
@@ -76,9 +77,9 @@ def enable_disable_buttons(div_children_one, div_children_two):
             ]
         )
     ):
-        return (False, False, False)
+        return (False, False, False, False)
     else:
-        return (True, True, True)
+        return (True, True, True, True)
 
 
 def parse_contents(contents, filename, date, f_name):
@@ -353,6 +354,8 @@ def handle_right_click(clickData, fig, matched_points):  # , line_g_hover, vis_p
 )
 def undo_event_handler(undo_n_clicks, l_fig, r_fig, last_annotation):
     if undo_n_clicks:
+        if not left_annotator.clicks:
+            raise PreventUpdate
         if last_annotation == "left":
             updated_last_annot = "right"
             # Update figures
@@ -485,6 +488,93 @@ def save_event_handler(save_n_clicks, close_n_clicks, modal_is_open):
         return modal_is_open, homepage.HomePage().generate_context(), 0, True
 
 
+@app.callback(
+    dash.dependencies.Output("json-error", "is_open"),
+    dash.dependencies.Output("left_graph", "figure", allow_duplicate=True),
+    dash.dependencies.Output("right_graph", "figure", allow_duplicate=True),
+    dash.dependencies.Output("matched_points", "children", allow_duplicate=True),
+    dash.dependencies.Input("upload-json", "contents"),
+    dash.dependencies.Input("upload-json", "filename"),
+    dash.dependencies.State("left_graph", "figure"),
+    dash.dependencies.State("right_graph", "figure"),
+    prevent_initial_call=True,
+)
+def upload_JSON_annotation(contents, filename, left_fig, right_fig):
+    if contents is None:
+        raise PreventUpdate
+
+    if not filename.endswith(".json"):
+        return True, dash.no_update, dash.no_update, dash.no_update
+
+    content_type, content_string = contents.split(",")
+    decoded = base64.b64decode(content_string)
+
+    # Load annotations
+    data = json.loads(decoded)
+    matches = data.get("matches")
+    # print(matches)
+
+    if matches is None:
+        return True, dash.no_update, dash.no_update, dash.no_update
+
+    left_annotator.reset_all_annotations()
+    right_annotator.reset_all_annotations()
+
+    l_fig = go.Figure(left_fig)
+    r_fig = go.Figure(right_fig)
+    updated_matched_points = []
+
+    l_fig["data"] = [l_fig["data"][0]]
+    r_fig["data"] = [r_fig["data"][0]]
+
+    for idx, points in enumerate(matches):
+        # Pass clicks to the annotator
+        x1 = round(points.get("x1") * left_annotator.scale_factor)
+        y1 = round(points.get("y1") * left_annotator.scale_factor)
+        x2 = round(points.get("x2") * right_annotator.scale_factor)
+        y2 = round(points.get("y2") * right_annotator.scale_factor)
+
+        left_annotator.add_click(x1, y1)
+        right_annotator.add_click(x2, y2)
+        # print(annotator, annotator.clicks)
+
+        # Add points to store for line visuaization
+        # line_x = line_g_hover["points"][0]["x"]
+        # line_y = line_g_hover["points"][0]["y"]
+        # vis_pts.append((line_x, line_y))
+        # print(vis_pts)
+
+        # Update the figures with the new annotations
+        l_fig.add_trace(
+            go.Scatter(
+                x=[x1],
+                y=[y1],
+                showlegend=False,
+                mode="markers",
+                name="Match " + str(idx + 1),
+                marker=dict(size=12),
+                marker_line=dict(width=2, color="DarkSlateGrey"),
+            )
+        )
+        r_fig.add_trace(
+            go.Scatter(
+                x=[x2],
+                y=[y2],
+                showlegend=False,
+                mode="markers",
+                name="Match " + str(idx + 1),
+                marker=dict(size=12),
+                marker_line=dict(width=2, color="DarkSlateGrey"),
+            )
+        )
+
+        # Update the Matched Points list
+        new_point = dbc.ListGroupItem(f"x = {x1}, y = {y1} -> x = {x2}, y = {y2}")
+        updated_matched_points.append(new_point)
+
+    return dash.no_update, l_fig, r_fig, updated_matched_points
+
+
 def main():
     # Create web app basic layout
     app.title = "Graph Matching Annotation Tool"
@@ -498,7 +588,7 @@ def main():
         ]
     )
 
-    app.run(debug=False)
+    app.run(debug=True)
 
 
 if __name__ == "__main__":
