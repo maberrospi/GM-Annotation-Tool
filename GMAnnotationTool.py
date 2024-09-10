@@ -225,9 +225,7 @@ def update_image_two(list_of_contents, list_of_names, list_of_dates):
         return children
 
 
-def click_event_handler(
-    clickData, annotator, fig, matched_points: list
-):  # , line_g_hover, vis_pts
+def click_event_handler(clickData, annotator, fig, matched_points: list):
     # Click on the graph canvas
     # Pass clicks to the annotator
     points = clickData.get("points")[0]
@@ -236,12 +234,6 @@ def click_event_handler(
     idx = len(annotator.clicks)
     annotator.add_click(x, y)
     print(annotator, annotator.clicks)
-
-    # Add points to store for line visuaization
-    # line_x = line_g_hover["points"][0]["x"]
-    # line_y = line_g_hover["points"][0]["y"]
-    # vis_pts.append((line_x, line_y))
-    # print(vis_pts)
 
     fig = go.Figure(fig)
     # Update the figure with the new annotation
@@ -266,7 +258,7 @@ def click_event_handler(
             matched_points[-1]["props"]["children"] + f" -> x = {x}, y = {y}"
         )
 
-    return fig, matched_points  # , vis_pts
+    return fig, matched_points
 
 
 @app.callback(
@@ -276,19 +268,15 @@ def click_event_handler(
     dash.dependencies.Input("left_graph", "clickData"),
     dash.dependencies.State("left_graph", "figure"),
     dash.dependencies.State("matched_points", "children"),
-    # dash.dependencies.State("line-graph", "hoverData"),
-    # dash.dependencies.State("points-store-1", "data"),
     prevent_initial_call=True,
 )
-def handle_left_click(clickData, fig, matched_points):  # , line_g_hover, vis_pts_1
-    # print(line_g_hover)
+def handle_left_click(clickData, fig, matched_points):
     if not clickData or len(left_annotator.clicks) > len(right_annotator.clicks):
         raise PreventUpdate
     else:
-        # print(fig["data"])
         figure, matched_points_view = click_event_handler(
             clickData, left_annotator, fig, matched_points
-        )  # , line_g_hover, vis_pts_1
+        )
         # Update the last annotated stored value
         store_last_annot = "left"
 
@@ -302,36 +290,19 @@ def handle_left_click(clickData, fig, matched_points):  # , line_g_hover, vis_pt
     dash.dependencies.Input("right_graph", "clickData"),
     dash.dependencies.State("right_graph", "figure"),
     dash.dependencies.State("matched_points", "children"),
-    # dash.dependencies.State("line-graph", "hoverData"),
-    # dash.dependencies.State("points-store-2", "data"),
     prevent_initial_call=True,
 )
-def handle_right_click(clickData, fig, matched_points):  # , line_g_hover, vis_pts_2
+def handle_right_click(clickData, fig, matched_points):
     if not clickData or len(left_annotator.clicks) <= len(right_annotator.clicks):
         raise PreventUpdate
     else:
-        # print(fig["data"])
         figure, matched_points_view = click_event_handler(
             clickData, right_annotator, fig, matched_points
-        )  # , line_g_hover, vis_pts_2
+        )
         # Update the last annotated stored value
         store_last_annot = "right"
 
-        return figure, matched_points_view, store_last_annot  # , vis_pts
-
-
-# @app.callback(
-#     dash.dependencies.Output('background', 'figure'),
-#     dash.dependencies.Input("right_graph", "clickData"),
-#     dash.dependencies.State('left-image', 'figure'),
-#     dash.dependencies.State('right-image', 'figure')
-# )
-
-# def draw_match_line(clickData,left_fig,right_fig):
-# Determine the full x range across both images
-#     left_x_range = left_figure['layout']['xaxis']['range']
-# right_x_range = right_figure['layout']['xaxis']['range']
-# full_x_range = [left_x_range[0], right_x_range[1]]
+        return figure, matched_points_view, store_last_annot
 
 
 @app.callback(
@@ -456,7 +427,6 @@ def save_event_handler(save_n_clicks, close_n_clicks, modal_is_open):
         l_annot_n_clicks = len(left_annotator.clicks)
         r_annot_n_clicks = len(right_annotator.clicks)
         if l_annot_n_clicks != r_annot_n_clicks:
-            # print(not modal_is_open)
             return not modal_is_open, dash.no_update, 0, dash.no_update
 
         im1_path = left_annotator.img_path.split(".")[0]
@@ -505,7 +475,6 @@ def upload_JSON_annotation(contents, filename, left_fig, right_fig):
     # Load annotations
     data = json.loads(decoded)
     matches = data.get("matches")
-    # print(matches)
 
     if matches is None:
         return True, dash.no_update, dash.no_update, dash.no_update
@@ -529,13 +498,6 @@ def upload_JSON_annotation(contents, filename, left_fig, right_fig):
 
         left_annotator.add_click(x1, y1)
         right_annotator.add_click(x2, y2)
-        # print(annotator, annotator.clicks)
-
-        # Add points to store for line visuaization
-        # line_x = line_g_hover["points"][0]["x"]
-        # line_y = line_g_hover["points"][0]["y"]
-        # vis_pts.append((line_x, line_y))
-        # print(vis_pts)
 
         # Update the figures with the new annotations
         l_fig.add_trace(
