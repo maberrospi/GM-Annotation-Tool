@@ -13,6 +13,8 @@ import base64
 import inspect
 import json
 from pathlib import Path
+import argparse
+import ipaddress
 
 import functionalities.annotator
 import homepage
@@ -575,7 +577,25 @@ def upload_JSON_annotation(contents, filename, left_fig, right_fig):
     return dash.no_update, l_fig, r_fig, updated_matched_points
 
 
-def main():
+# fmt: off
+def get_args():
+    parser = argparse.ArgumentParser(description='Launch web tool to create annotations.')
+    parser.add_argument('--port', '-p', default='8050', help='Listening port.')
+    parser.add_argument('--host', '-dh', default='127.0.0.1', help='Host to deploy on.')
+    
+    return parser.parse_args()
+# fmt: on
+
+
+def check_params(args):
+    try:
+        ipaddress.ip_address(args.host)
+    except ValueError:
+        print("The input host is not a valid ip address.")
+        raise
+
+
+def main(host, port):
     # Create web app basic layout
     app.title = "Graph Matching Annotation Tool"
     app.layout = html.Div(
@@ -588,8 +608,10 @@ def main():
         ]
     )
 
-    app.run(debug=True)
+    app.run(debug=False, host=host, port=port)
 
 
 if __name__ == "__main__":
-    main()
+    args = get_args()
+    check_params(args)
+    main(**vars(args))
