@@ -114,15 +114,7 @@ def parse_contents(contents, filename, date, f_name):
     else:
         resized = img
 
-    # Enlarge the image if its too small
-    # if img.shape[1] <= min_display_width:
-    #     scale_factor = max_display_width / img.shape[1]
-    #     width = int(round(img.shape[1] * scale_factor))
-    #     height = int(round(img.shape[0] * scale_factor))
-    #     resized = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
-
     # Tell the annotator the info about the image we are currently annotating
-    # functionalities.annotator.MatchAnnotator().new_image(filename, scale_factor)
     graph_div_id = ""
     graph_id = ""
     if f_name == "update_image":
@@ -144,7 +136,6 @@ def parse_contents(contents, filename, date, f_name):
         fig = px.imshow(img, binary_string=True)  # Grayscale
     else:
         return html.Div(["There was an error processing this file."])
-        # raise Exception("The created graph does not contain any nodes.")
 
     # Configure axes
     fig.update_xaxes(

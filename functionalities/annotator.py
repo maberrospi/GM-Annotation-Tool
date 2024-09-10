@@ -1,21 +1,9 @@
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
-class MatchAnnotator(object):  # metaclass=Singleton
+class MatchAnnotator(object):
     def __init__(self, name, output_dir="Output") -> None:
-        # Was initialy a singleton class but changed it to fit my needs
         assert output_dir is not None, "Output directory was not given."
-        # assert obj_id is not None, "Object ID was not given"
 
         self.output_dir = output_dir
         self.name = name
-        # self.id = obj_id
 
         # Image-specific attributes
         self.img_path = None  # Path to the last file being annotated
@@ -28,8 +16,6 @@ class MatchAnnotator(object):  # metaclass=Singleton
         self.scale_factor = scale_factor
         self.clicks = []
         self.last_click_id = -1
-        # print(path)
-        # print(scale_factor)
 
     def add_click(self, x, y):
         self.clicks.append({"x": x, "y": y})

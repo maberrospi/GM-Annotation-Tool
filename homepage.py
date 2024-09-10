@@ -13,7 +13,6 @@ class HomePage(object):
         pass
 
     def generate_context(self):
-        # nav_view =
         context_view = views.context_view.ContextView()
         navbar_view = views.nav_view.NavView()
 
