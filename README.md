@@ -34,3 +34,5 @@ The annotation output folder will be created the first time you save any annotat
 2. Each match will be annotated with a number corresponding to the clicking order.
 3. The matches are saved as JSON files in the following format: `{"matches": [{"x1": px, "y1": px, "x2": px, "y2": px}]}`. The file name concatenates the image filenames likeso `R0009_1_pre_1_3-R0009_1_post_1_3.json`.
 4. If no matches are chosen, the annotation will contain `{"matches": null}`
+
+To upload existing annotations, the annotations need to have the format that is provided in step 3.
