@@ -1,7 +1,0 @@
-name: GMAnnotationTool
-channels:
-  - conda-forge
-  - defaults
-dependencies:
-  - conda-forge::opencv
-  - pandas
