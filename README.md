@@ -22,7 +22,7 @@ $ pip install numpy dash dash_bootstrap_components
 # Usage
 ```
 # Activate the environment
-$ python GMAnnotationToo.py -dh '127.0.0.1' -p 8050
+$ python GMAnnotationTool.py -dh '127.0.0.1' -p 8050
 # Navigate to the link provided with your favorite browser to start using the tool.
 ```
 The `-dh` and `-p` arguments are optional and refer to the `host ip` and the `port` where the app will be deployed.
