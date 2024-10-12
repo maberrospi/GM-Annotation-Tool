@@ -5,7 +5,6 @@ __pycache__
 
 Dockerfile
 README.md
-docker_extract_annotations.txt
 environment_nobuilds.yml
 LICENSE
 Output
