@@ -1,0 +1,12 @@
+__pycache__
+.git
+.gitignore
+**/.vscode
+
+Dockerfile
+README.md
+docker_extract_annotations.txt
+environment_nobuilds.yml
+LICENSE
+Output
+demo_img
